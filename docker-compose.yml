@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  training:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    environment:
+      - DATA_PATH=/app/Advertising.csv
+      - MODEL_PATH=/app/models/model.pkl
+      - METRICS_PATH=/app/models/metrics.json
+    command: python src/train.py
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./models:/app/models
+    environment:
+      - MODEL_PATH=/app/models/model.pkl
+    depends_on:
+      - training
+    command: python src/api.py
